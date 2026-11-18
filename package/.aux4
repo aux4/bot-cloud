@@ -184,7 +184,7 @@
         {
           "name": "invoke",
           "execute": [
-            "aux4 cloud value(target) value(command*)"
+            "aux4 cloud param(target:args) param(command**:args)"
           ],
           "help": {
             "text": "Invoke an explicitly permitted command as this machine",
