@@ -59,7 +59,7 @@ jobs:
       - uses: aux4/action@v1
         with:
           command: test
-          packages: aux4/pkger@1.1.55
+          build_command: aux4 aux4 pkger install aux4/pkger@1.1.55 --force
         env:
           TURSO_CLOUD_TEST_URL: http://127.0.0.1:8080
           TURSO_CLOUD_TEST_TOKEN: ''
