@@ -184,8 +184,8 @@
         {
           "name": "invoke",
           "execute": [
-            "node ${packageDir}/lib/validate-command.mjs value(command*)",
-            "aux4 cloud param(target:args) param(command**:args)"
+            "set:commandPath=!node ${packageDir}/lib/validate-command.mjs value(command*)",
+            "aux4 cloud value(target) ${commandPath}"
           ],
           "help": {
             "text": "Invoke an explicitly permitted command as this machine",

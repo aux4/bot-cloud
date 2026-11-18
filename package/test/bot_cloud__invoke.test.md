@@ -20,12 +20,13 @@ export AUX4_CLOUD_SCOPE=aux4
 export CLOUD_SYNC_TOKEN=00000000-0000-4000-8000-000000000000
 export AUX4_ACCESS_TOKEN=test-human-token
 if aux4 bot-cloud invoke --target target-vm --command bot-cloud --command status < /dev/null >invoke.stdout 2>invoke.stderr; then exit 1; fi
+if aux4 bot-cloud invoke --target target-vm --command '["bot-cloud","status"]' < /dev/null >invoke.stdout 2>invoke.stderr; then exit 1; fi
 if aux4 bot-cloud invoke --target target-vm --command "status'; false; '" < /dev/null >invoke.stdout 2>invoke.stderr; then exit 1; fi
 node --input-type=module -e '
 import fs from "node:fs";
 import assert from "node:assert/strict";
 const calls = fs.readFileSync("invoke.ndjson", "utf8").trim().split("\n").map(JSON.parse);
-assert.equal(calls.length,1);
+assert.equal(calls.length,2);
 assert(calls.some(call => call.method === "POST" && call.path === "/v1/aux4/run/target-vm/bot-cloud/status" && call.machineKeyLength === 36 && call.hasAuthorization === false));
 console.log("machine credential and command path preserved");
 '
