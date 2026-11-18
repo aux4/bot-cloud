@@ -19,8 +19,8 @@ export AUX4_CLOUD_API_URL=http://127.0.0.1:18873
 export AUX4_CLOUD_SCOPE=aux4
 export CLOUD_SYNC_TOKEN=00000000-0000-4000-8000-000000000000
 export AUX4_ACCESS_TOKEN=test-human-token
-if aux4 bot-cloud invoke --target target-vm --command bot-cloud --command status >invoke.stdout 2>invoke.stderr; then exit 1; fi
-if aux4 bot-cloud invoke --target target-vm --command "status'; false; '" >invoke.stdout 2>invoke.stderr; then exit 1; fi
+if aux4 bot-cloud invoke --target target-vm --command bot-cloud --command status < /dev/null >invoke.stdout 2>invoke.stderr; then exit 1; fi
+if aux4 bot-cloud invoke --target target-vm --command "status'; false; '" < /dev/null >invoke.stdout 2>invoke.stderr; then exit 1; fi
 node --input-type=module -e '
 import fs from "node:fs";
 import assert from "node:assert/strict";
