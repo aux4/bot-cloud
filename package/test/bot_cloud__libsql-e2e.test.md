@@ -1,35 +1,47 @@
-# aux4/bot-cloud libSQL round trip
+# WhatsApp delivery using the cloud database
 
-This opt-in test exercises the actual command wrapper against a local libSQL
-server. Set TURSO_CLOUD_TEST_URL and TURSO_CLOUD_TEST_TOKEN before running it.
+## a signed message gets one echo reply despite duplicate delivery
 
-## signed delivery is deduped and replied once
+```timeout
+60000
+```
 
-~~~text
-timeout 30000
-~~~
-
-~~~execute
-if [ -z "$TURSO_CLOUD_TEST_URL" ]; then printf '{"ok":true}\n{"ok":true}\nwhatsapp:whatsapp-bot:wamid.CLOUD1\n'; exit 0; fi
+```execute
+set -e
+: "${TURSO_CLOUD_TEST_URL:?A local libSQL test endpoint is required}"
 export TURSO_DATABASE_URL="$TURSO_CLOUD_TEST_URL"
-export TURSO_AUTH_TOKEN="$TURSO_CLOUD_TEST_TOKEN"
-rm -f body.json envelope.json first.out second.out
-nohup aux4 mock start --port 18871 >mock.log 2>&1 &
-curl -s --retry 20 --retry-connrefused --retry-delay 1 -o /dev/null http://localhost:18871/
-aux4 mock stub --port 18871 --method POST --path /v27.0/PHONE123/messages --status 200 --body '{"messages":[{"id":"sent-1"}]}' >/dev/null
-node -e 'const fs=require("fs"),c=require("crypto"); const b=JSON.stringify({object:"whatsapp_business_account",entry:[{changes:[{value:{messages:[{from:"15551230001",id:"wamid.CLOUD1",type:"text",text:{body:"hello"}}]}}]}]}); const s="sha256="+c.createHmac("sha256","app-secret").update(b).digest("hex"); fs.writeFileSync("envelope.json",JSON.stringify({method:"POST",headers:{"x-hub-signature-256":s},queryStringParameters:{},pathParameters:{channel:"whatsapp",bot:"whatsapp-bot"},rawBody:b,body:b}));'
-cat envelope.json | node ../lib/run.mjs whatsapp-bot PHONE123 verify-tok test-token app-secret http://localhost:18871/api cloud /tmp/bot-cloud-test '{"name":"whatsapp_bot_inbox","provider":"repository","db":"cloud","visibility":"30","maxAttempts":"3"}' 129600 >first.out
-cat envelope.json | node ../lib/run.mjs whatsapp-bot PHONE123 verify-tok test-token app-secret http://localhost:18871/api cloud /tmp/bot-cloud-test '{"name":"whatsapp_bot_inbox","provider":"repository","db":"cloud","visibility":"30","maxAttempts":"3"}' 129600 >second.out
-cat first.out
-cat second.out
-aux4 repository find events --db cloud --expr "1 = 1" --select id | node -e 'let s=""; process.stdin.on("data",d=>s+=d).on("end",()=>{const r=JSON.parse(s); console.log("event-count:"+r.filter(x=>x.id==="whatsapp:whatsapp-bot:wamid.CLOUD1").length); console.log("reply-claim-count:"+r.filter(x=>x.id==="reply:whatsapp:whatsapp-bot:wamid.CLOUD1").length);})'
-aux4 mock stop --port 18871 >/dev/null 2>&1
-rm -f envelope.json first.out second.out mock.log
-~~~
+export TURSO_AUTH_TOKEN="${TURSO_CLOUD_TEST_TOKEN:-}"
+rm -f graph.ndjson
+node fixtures/graph.mjs 18872 graph.ndjson >graph.log 2>&1 &
+graphPid=$!
+trap 'kill "$graphPid" 2>/dev/null || true; rm -f graph.ndjson graph.log envelope.json' EXIT
+for attempt in 1 2 3 4 5 6 7 8 9 10; do
+  if curl -fsS http://127.0.0.1:18872/ >/dev/null 2>&1; then break; fi
+  sleep 0.2
+done
+curl -fsS http://127.0.0.1:18872/ >/dev/null || { cat graph.log; exit 1; }
+node --input-type=module -e '
+import fs from "node:fs";
+import crypto from "node:crypto";
+const body = JSON.stringify({object:"whatsapp_business_account", entry:[{changes:[{value:{messages:[{from:"15551230001",id:"wamid.CLOUD."+crypto.randomUUID(),type:"text",text:{body:"hello"}}]}}]}]});
+const signature = "sha256=" + crypto.createHmac("sha256", "test-app-secret").update(body).digest("hex");
+fs.writeFileSync("envelope.json", JSON.stringify({method:"POST", headers:{"x-hub-signature-256":signature}, pathParameters:{channel:"whatsapp",bot:"whatsapp-bot"}, queryStringParameters:{},rawBody:body, body}));
+'
+aux4 whatsapp --token test-token --appSecret test-app-secret --verifyToken test-verify-token --phoneNumberId PHONE123 --apiUrl http://127.0.0.1:18872 --db cloud <envelope.json
+aux4 whatsapp --token test-token --appSecret test-app-secret --verifyToken test-verify-token --phoneNumberId PHONE123 --apiUrl http://127.0.0.1:18872 --db cloud <envelope.json
+node --input-type=module -e '
+import fs from "node:fs";
+import assert from "node:assert/strict";
+const rows = fs.readFileSync("graph.ndjson", "utf8").trim().split("\n").map(JSON.parse).filter(r=>r.body.type === "text");
+assert.equal(rows.length,1); assert.equal(rows[0].body.text.body,"you said: hello");
+assert.equal(rows[0].body.to,"15551230001");
+console.log("one reply: you said: hello");
+'
+aux4 repository list --db cloud
+```
 
-~~~expect:partial
+```expect:partial
 {"ok":true}
 {"ok":true}
-event-count:1
-reply-claim-count:1
-~~~
+one reply: you said: hello
+```

@@ -4,7 +4,12 @@
   "version": "0.1.0",
   "description": "Run an aux4 WhatsApp bot on one aux4.cloud command machine",
   "license": "Apache-2.0",
-  "tags": ["bot", "whatsapp", "cloud", "turso"],
+  "tags": [
+    "bot",
+    "whatsapp",
+    "cloud",
+    "turso"
+  ],
   "dependencies": [
     "aux4/bot@>=0.2.9",
     "aux4/bot-meta@>=0.1.25",
@@ -23,11 +28,19 @@
         "webhooks": true
       }
     },
-    "capabilities": ["turso:database"],
-    "commands": ["whatsapp"]
+    "capabilities": [
+      "turso:database"
+    ],
+    "commands": [
+      "whatsapp"
+    ]
   },
   "system": [
-    ["test:node --version", "brew:node", "linux:nodejs"]
+    [
+      "test:node --version",
+      "brew:node",
+      "linux:nodejs"
+    ]
   ],
   "profiles": [
     {
@@ -36,23 +49,75 @@
         {
           "name": "whatsapp",
           "execute": [
-            "stdin:node ${packageDir}/lib/run.mjs values(botId, phoneNumberId, verifyToken, token, appSecret, apiUrl, db, tmpDir, queue, dedupeTtl)"
+            "set:botConfig=!node ${packageDir}/lib/config.mjs values(botId, phoneNumberId, verifyToken, token, appSecret, apiUrl)",
+            "set:botConfig=json:${botConfig}",
+            "set:channels=${botConfig.channels}",
+            "set:bots=${botConfig.bots}",
+            "set:defaults=${botConfig.defaults}",
+            "json:stdin:aux4 bot ingest params(channels, bots, defaults, db, dedupeTtl, queue)",
+            "set:ingestStatus=${response.statusCode}",
+            "node ${packageDir}/lib/status.mjs value(ingestStatus)",
+            "nout:aux4 bot work --mode pull params(channels, bots, defaults, db, tmpDir, queue)",
+            "log:{\"ok\":true}"
           ],
           "help": {
             "text": "Verify, enqueue, and process one signed WhatsApp webhook delivery",
             "variables": [
-              {"name": "botId", "text": "Configured bot identifier", "default": "whatsapp-bot"},
-              {"name": "phoneNumberId", "text": "Meta WhatsApp phone number ID", "default": "1450110568185980"},
-              {"name": "verifyToken", "text": "Meta webhook verification token", "default": ""},
-              {"name": "token", "text": "Meta system-user access token", "default": "secret://aux4-cloud/whatsapp/token", "hide": true},
-              {"name": "appSecret", "text": "Meta app secret", "default": "secret://aux4-cloud/whatsapp/appSecret", "hide": true},
-              {"name": "apiUrl", "text": "Meta Graph API base URL (override for tests)", "default": "https://graph.facebook.com"},
-              {"name": "db", "text": "Bot state database", "default": "cloud"},
-              {"name": "tmpDir", "text": "Temporary attachment directory", "default": "/tmp/aux4-bot"},
-              {"name": "dedupeTtl", "text": "Webhook dedupe lifetime in seconds", "default": "129600"},
-              {"name": "queue", "text": "Repository-backed queue configuration", "default": "{\"name\":\"whatsapp_bot_inbox\",\"provider\":\"repository\",\"db\":\"cloud\",\"visibility\":\"30\",\"maxAttempts\":\"5\"}"}
+              {
+                "name": "botId",
+                "text": "Configured bot identifier",
+                "default": "whatsapp-bot"
+              },
+              {
+                "name": "phoneNumberId",
+                "text": "Meta WhatsApp phone number ID",
+                "default": "1450110568185980"
+              },
+              {
+                "name": "verifyToken",
+                "text": "Meta webhook verification token",
+                "default": ""
+              },
+              {
+                "name": "token",
+                "text": "Meta system-user access token",
+                "default": "secret://aux4-cloud/whatsapp/token",
+                "hide": true
+              },
+              {
+                "name": "appSecret",
+                "text": "Meta app secret",
+                "default": "secret://aux4-cloud/whatsapp/appSecret",
+                "hide": true
+              },
+              {
+                "name": "apiUrl",
+                "text": "Meta Graph API base URL (override for tests)",
+                "default": "https://graph.facebook.com"
+              },
+              {
+                "name": "db",
+                "text": "Bot state database",
+                "default": "cloud"
+              },
+              {
+                "name": "tmpDir",
+                "text": "Temporary attachment directory",
+                "default": "/tmp/aux4-bot"
+              },
+              {
+                "name": "dedupeTtl",
+                "text": "Webhook dedupe lifetime in seconds",
+                "default": "129600"
+              },
+              {
+                "name": "queue",
+                "text": "Repository-backed queue configuration",
+                "default": "{\"name\":\"whatsapp_bot_inbox\",\"provider\":\"repository\",\"db\":\"cloud\",\"visibility\":\"30\",\"maxAttempts\":\"5\"}"
+              }
             ]
-          }
+          },
+          "noHooks": true
         }
       ]
     }
