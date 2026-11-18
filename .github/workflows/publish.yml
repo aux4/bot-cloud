@@ -52,7 +52,7 @@ jobs:
       - name: Wait for libSQL
         run: |
           for attempt in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:8080/ >/dev/null 2>&1; then exit 0; fi
+            if curl -fsS -H 'Content-Type: application/json' --data '{"requests":[{"type":"execute","stmt":{"sql":"SELECT 1"}},{"type":"close"}]}' http://127.0.0.1:8080/v2/pipeline >/dev/null 2>&1; then exit 0; fi
             sleep 1
           done
           echo "libSQL service did not become ready" >&2
