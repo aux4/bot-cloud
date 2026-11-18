@@ -184,6 +184,7 @@
         {
           "name": "invoke",
           "execute": [
+            "node ${packageDir}/lib/validate-command.mjs value(command*)",
             "aux4 cloud param(target:args) param(command**:args)"
           ],
           "help": {
