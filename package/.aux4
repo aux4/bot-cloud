@@ -1,7 +1,7 @@
 {
   "scope": "aux4",
   "name": "bot-cloud",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Run an aux4 WhatsApp bot on one aux4.cloud command machine",
   "license": "Apache-2.0",
   "tags": [
