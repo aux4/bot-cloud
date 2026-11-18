@@ -13,7 +13,8 @@
   "dependencies": [
     "aux4/bot@>=0.2.9",
     "aux4/bot-meta@>=0.1.25",
-    "aux4/secret-aux4-cloud"
+    "aux4/secret-aux4-cloud",
+    "aux4/cloud@>=1.2.34"
   ],
   "type": "cloud",
   "cloud": {
@@ -176,6 +177,26 @@
                 "name": "limit",
                 "text": "Maximum messages",
                 "default": "50"
+              }
+            ]
+          }
+        },
+        {
+          "name": "invoke",
+          "execute": [
+            "aux4 cloud value(target) value(command*)"
+          ],
+          "help": {
+            "text": "Invoke an explicitly permitted command as this machine",
+            "variables": [
+              {
+                "name": "target",
+                "text": "Target machine name"
+              },
+              {
+                "name": "command",
+                "text": "Command path tokens",
+                "multiple": true
               }
             ]
           }

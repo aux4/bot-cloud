@@ -34,3 +34,15 @@ aux4 cloud whatsapp-bot bot-cloud messages 19095516812
 
 Status shows the database URL and credential length without displaying credentials.
 History commands use the same machine database as ingestion and work.
+
+## Calls to other machines
+
+`bot-cloud invoke` uses this machine's identity and explicit outbound command grants.
+It is denied by default. For example, after an administrator grants the target's
+`read` command:
+
+```bash
+aux4 cloud whatsapp-bot bot-cloud invoke --target repository --command read
+```
+
+Only commands allowed on both the source policy and target machine can run.
