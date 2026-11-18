@@ -5,7 +5,6 @@ on:
     branches: [dev]
     paths:
       - '**'
-      - '!.github/**'
       - '!README.md'
       - '!LICENSE'
   workflow_dispatch:
