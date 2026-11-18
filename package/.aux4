@@ -32,7 +32,8 @@
       "turso:database"
     ],
     "commands": [
-      "whatsapp"
+      "whatsapp",
+      "bot-cloud"
     ]
   },
   "system": [
@@ -118,6 +119,66 @@
             ]
           },
           "noHooks": true
+        },
+        {
+          "name": "bot-cloud",
+          "execute": [
+            "profile:bot-cloud"
+          ],
+          "help": {
+            "text": "Inspect the hosted WhatsApp bot"
+          }
+        }
+      ]
+    },
+    {
+      "name": "bot-cloud",
+      "commands": [
+        {
+          "name": "status",
+          "execute": [
+            "node ${packageDir}/lib/status-info.mjs"
+          ],
+          "help": {
+            "text": "Show capability and database readiness without credentials"
+          }
+        },
+        {
+          "name": "conversations",
+          "execute": [
+            "aux4 bot conversations --botId whatsapp-bot --db cloud param(limit)"
+          ],
+          "help": {
+            "text": "List logged WhatsApp chats",
+            "variables": [
+              {
+                "name": "limit",
+                "text": "Maximum chats",
+                "default": "20"
+              }
+            ]
+          }
+        },
+        {
+          "name": "messages",
+          "execute": [
+            "aux4 bot messages --botId whatsapp-bot --db cloud params(chat, limit)"
+          ],
+          "help": {
+            "text": "Read inbound and outbound messages",
+            "variables": [
+              {
+                "name": "chat",
+                "text": "WhatsApp chat identifier",
+                "arg": true
+              },
+              {
+                "name": "limit",
+                "text": "Maximum messages",
+                "default": "50"
+              }
+            ]
+          }
         }
       ]
     }

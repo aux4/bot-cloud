@@ -23,3 +23,14 @@ The platform webhook must pass an envelope containing `method`, `headers`,
 `queryStringParameters`, `rawBody`, and `pathParameters` with `channel` and
 `bot`. The command is intended to be bound to the platform's asynchronous
 webhook runner.
+
+## Inspecting the hosted bot
+
+```bash
+aux4 cloud whatsapp-bot bot-cloud status
+aux4 cloud whatsapp-bot bot-cloud conversations
+aux4 cloud whatsapp-bot bot-cloud messages 19095516812
+```
+
+Status shows the database URL and credential length without displaying credentials.
+History commands use the same machine database as ingestion and work.
