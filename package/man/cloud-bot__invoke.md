@@ -5,11 +5,11 @@ Invoke another machine as this bot machine. The source machine's explicit access
 #### Usage
 
 ```bash
-aux4 bot-cloud invoke --target <machine> --command <token> [--command <token>]
+aux4 cloud-bot invoke --target <machine> --command <token> [--command <token>]
 ```
 
 #### Example
 
 ```bash
-aux4 bot-cloud invoke --target repository --command read
+aux4 cloud-bot invoke --target repository --command read
 ```

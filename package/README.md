@@ -1,4 +1,4 @@
-# aux4/bot-cloud
+# aux4/cloud-bot
 
 Run a WhatsApp aux4 bot on one aux4.cloud command machine. The machine declares
 `turso:database`, so bot state and the repository-backed queue share its own
@@ -7,7 +7,7 @@ Turso database through `db: cloud`.
 ## Installation
 
 ```bash
-aux4 aux4 pkger install aux4/bot-cloud
+aux4 aux4 pkger install aux4/cloud-bot
 ```
 
 The `whatsapp` command consumes the platform webhook's raw request envelope on
@@ -27,9 +27,9 @@ webhook runner.
 ## Inspecting the hosted bot
 
 ```bash
-aux4 cloud whatsapp-bot bot-cloud status
-aux4 cloud whatsapp-bot bot-cloud conversations
-aux4 cloud whatsapp-bot bot-cloud messages 19095516812
+aux4 cloud whatsapp-bot cloud-bot status
+aux4 cloud whatsapp-bot cloud-bot conversations
+aux4 cloud whatsapp-bot cloud-bot messages 19095516812
 ```
 
 Status shows the database URL and credential length without displaying credentials.
@@ -37,12 +37,12 @@ History commands use the same machine database as ingestion and work.
 
 ## Calls to other machines
 
-`bot-cloud invoke` uses this machine's identity and explicit outbound command grants.
+`cloud-bot invoke` uses this machine's identity and explicit outbound command grants.
 It is denied by default. For example, after an administrator grants the target's
 `read` command:
 
 ```bash
-aux4 cloud whatsapp-bot bot-cloud invoke --target repository --command read
+aux4 cloud whatsapp-bot cloud-bot invoke --target repository --command read
 ```
 
 Only commands allowed on both the source policy and target machine can run.

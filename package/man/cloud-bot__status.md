@@ -5,11 +5,11 @@ Show declared capabilities, database URL, and token length. Never prints the dat
 #### Usage
 
 ```bash
-aux4 bot-cloud status
+aux4 cloud-bot status
 ```
 
 #### Example
 
 ```bash
-aux4 bot-cloud status
+aux4 cloud-bot status
 ```

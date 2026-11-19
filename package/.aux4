@@ -1,6 +1,6 @@
 {
   "scope": "aux4",
-  "name": "bot-cloud",
+  "name": "cloud-bot",
   "version": "0.1.6",
   "description": "Run an aux4 WhatsApp bot on one aux4.cloud command machine",
   "license": "Apache-2.0",
@@ -34,7 +34,10 @@
     ],
     "commands": [
       "whatsapp",
-      "bot-cloud"
+      "cloud-bot"
+    ],
+    "replaces": [
+      "aux4/bot-cloud"
     ]
   },
   "system": [
@@ -122,9 +125,9 @@
           "noHooks": true
         },
         {
-          "name": "bot-cloud",
+          "name": "cloud-bot",
           "execute": [
-            "profile:bot-cloud"
+            "profile:cloud-bot"
           ],
           "help": {
             "text": "Inspect the hosted WhatsApp bot"
@@ -133,7 +136,7 @@
       ]
     },
     {
-      "name": "bot-cloud",
+      "name": "cloud-bot",
       "commands": [
         {
           "name": "status",
