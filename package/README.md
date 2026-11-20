@@ -46,3 +46,11 @@ aux4 cloud whatsapp-bot cloud-bot invoke --target repository --command read
 ```
 
 Only commands allowed on both the source policy and target machine can run.
+
+## Generic agent routing
+
+The default command still echoes incoming text. Set `CLOUD_BOT_AGENT_MACHINE=agent-pete` on the bot VM to dispatch text to a generic agent. The bot sends an opaque request ID and conversation ID, then waits while the agent completes the turn. Queue visibility is renewed during that wait. The agent sends its result back through authenticated `cloud-bot complete`; it never receives channel credentials or chooses the recipient.
+
+On the agent VM configure `AGENT_CALLBACK_MACHINE=whatsapp-bot` and `AGENT_CALLBACK_COMMAND=cloud-bot complete`. Grant only `ask` from the bot to the agent, and only `cloud-bot/complete` from the agent to the bot. The platform ingress still acknowledges the provider quickly and invokes the bot asynchronously. No child process is detached.
+
+For a synchronous command instead, set `CLOUD_BOT_COMMAND` to a command that prints its reply. Configure either a command or an agent machine. This POC routes text; cross-VM attachments need an explicit shared artifact mechanism.
