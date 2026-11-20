@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { completionArgs } from "../lib/complete.mjs";
 import { agentRequest, dispatchAgent } from "../lib/agent.mjs";
 
 const env = { CLOUD_BOT_AGENT_MACHINE: "agent-pete", AUX4BOT_REQUEST_ID: `req:${"a".repeat(64)}`, AUX4BOT_CONVERSATION_ID: "cafebabe-0000-4000-8000-000000000001" };
@@ -50,4 +51,13 @@ let body=""; process.stdin.on("data",x=>body+=x); process.stdin.on("end",async()
     assert.equal(record.body.question,"hello");
     await assert.rejects(dispatchAgent("hello",{...runtime,TEST_EXIT:"1"}),/Agent invocation failed/);
   } finally { await fs.rm(root,{recursive:true,force:true}); }
+});
+
+test("completion configuration is fixed by the bot VM, never RPC parameters", () => {
+  const args = completionArgs({WHATSAPP_TOKEN:"fixture-token",AUX4_ACCESS_TOKEN:"unrelated",apiUrl:"https://attacker.invalid",db:"attacker",bots:"malicious"});
+  assert.equal(args[args.indexOf("--db")+1],"cloud");
+  const bot=JSON.parse(args[args.indexOf("--bots")+1])["whatsapp-bot"];
+  assert.equal(bot.apiUrl,"https://graph.facebook.com");
+  assert.equal(bot.token,"fixture-token");
+  assert.throws(()=>completionArgs({token:"rpc-token"}),/binding/);
 });

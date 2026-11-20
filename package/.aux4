@@ -221,66 +221,11 @@
           "name": "complete",
           "noHooks": true,
           "execute": [
-            "set:botConfig=!node ${packageDir}/lib/config.mjs values(botId, phoneNumberId, verifyToken, token, appSecret, apiUrl, agentMachine, brainCommand)",
-            "set:botConfig=json:${botConfig}",
-            "set:channels=${botConfig.channels}",
-            "set:bots=${botConfig.bots}",
-            "set:defaults=${botConfig.defaults}",
-            "stdin:aux4 bot complete params(channels, bots, defaults, db)"
+            "stdin:node ${packageDir}/lib/complete.mjs"
           ],
           "help": {
             "text": "Deliver a correlated agent completion using stored bot routing",
-            "variables": [
-              {
-                "name": "botId",
-                "text": "Configured bot identifier",
-                "default": "whatsapp-bot"
-              },
-              {
-                "name": "phoneNumberId",
-                "text": "Meta WhatsApp phone number ID",
-                "default": "1450110568185980"
-              },
-              {
-                "name": "verifyToken",
-                "text": "Meta webhook verification token",
-                "default": ""
-              },
-              {
-                "name": "token",
-                "text": "Meta system-user access token",
-                "default": "secret://aux4-cloud/whatsapp/token",
-                "hide": true
-              },
-              {
-                "name": "appSecret",
-                "text": "Meta app secret",
-                "default": "secret://aux4-cloud/whatsapp/appSecret",
-                "hide": true
-              },
-              {
-                "name": "apiUrl",
-                "text": "Meta Graph API base URL (override for tests)",
-                "default": "https://graph.facebook.com"
-              },
-              {
-                "name": "db",
-                "text": "Bot state database",
-                "default": "cloud"
-              },
-              {
-                "name": "agentMachine",
-                "text": "Generic agent VM (uses authenticated completion callbacks)",
-                "env": "CLOUD_BOT_AGENT_MACHINE",
-                "default": ""
-              },
-              {
-                "name": "brainCommand",
-                "text": "Synchronous command that prints a reply (alternative to agentMachine)",
-                "env": "CLOUD_BOT_COMMAND",
-                "default": ""
-              }
-            ]
+            "variables": []
           }
         }
       ]
