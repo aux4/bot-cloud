@@ -49,7 +49,17 @@ Only commands allowed on both the source policy and target machine can run.
 
 ## Generic agent routing
 
-The default command still echoes incoming text. Set `CLOUD_BOT_AGENT_MACHINE=agent-pete` on the bot VM to dispatch text to a generic agent. The bot sends an opaque request ID and conversation ID, then waits while the agent completes the turn. Queue visibility is renewed during that wait. The agent sends its result back through authenticated `cloud-bot complete`; it never receives channel credentials or chooses the recipient.
+The default command echoes incoming text. Set the bot VM's configuration to select a generic agent:
+
+```yaml
+config:
+  bot:
+    agentMachine: agent-pete
+```
+
+The bot reads its machine configuration from `/tmp/config.yaml`. Explicit command parameters and the VM-owned `CLOUD_BOT_AGENT_MACHINE` environment variable take precedence. The selected target must also have an explicit `ask` grant in the bot's machine access settings.
+
+The bot sends an opaque request ID and conversation ID, then waits while the agent completes the turn. Queue visibility is renewed during that wait. The agent sends its result back through authenticated `cloud-bot complete`; it never receives channel credentials or chooses the recipient.
 
 On the agent VM configure `AGENT_CALLBACK_MACHINE=whatsapp-bot` and `AGENT_CALLBACK_COMMAND=cloud-bot complete`. Grant only `ask` from the bot to the agent, and only `cloud-bot/complete` from the agent to the bot. The platform ingress still acknowledges the provider quickly and invokes the bot asynchronously. No child process is detached.
 

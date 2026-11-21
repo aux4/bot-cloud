@@ -22,7 +22,7 @@ test("routing configuration and correlation must be valid before dispatch", () =
 });
 test("echo remains default; configured agent uses callback mode", () => {
   const path = new URL("../lib/config.mjs", import.meta.url).pathname;
-  const base = {...process.env}; delete base.CLOUD_BOT_AGENT_MACHINE; delete base.CLOUD_BOT_COMMAND;
+  const base = {...process.env,CLOUD_BOT_CONFIG_FILE:"/nonexistent/cloud-bot-test-config.yaml"}; delete base.CLOUD_BOT_AGENT_MACHINE; delete base.CLOUD_BOT_COMMAND;
   const config = patch => {
     const r = spawnSync(process.execPath, [path,"test","phone","verify","test-token","test-app-secret","http://test.invalid"], {env:{...base,...patch},encoding:"utf8"});
     assert.equal(r.status,0,r.stderr); return JSON.parse(r.stdout).bots.test;
@@ -34,6 +34,27 @@ test("echo remains default; configured agent uses callback mode", () => {
   assert.equal(config({CLOUD_BOT_COMMAND:"aux4 my-agent ask"}).command,"aux4 my-agent ask");
   const r = spawnSync(process.execPath,[path],{env:{...base,CLOUD_BOT_AGENT_MACHINE:"agent-pete",CLOUD_BOT_COMMAND:"echo"},encoding:"utf8"});
   assert.notEqual(r.status,0);
+});
+
+test("VM configuration selects an agent without enabling arbitrary commands", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "cloud-bot-config-"));
+  const file = path.join(root, "config.json");
+  const script = new URL("../lib/config.mjs", import.meta.url).pathname;
+  const base = {...process.env,CLOUD_BOT_CONFIG_FILE:file,AUX4_NO_DAEMON:"1"};
+  delete base.CLOUD_BOT_AGENT_MACHINE; delete base.CLOUD_BOT_COMMAND;
+  const invoke = patch => spawnSync(process.execPath,[script,"test","phone","verify","fixture-token","fixture-app-secret","https://graph.facebook.com"],{env:{...base,...patch},encoding:"utf8"});
+  try {
+    await fs.writeFile(file, JSON.stringify({config:{bot:{agentMachine:"agent-pete",brainCommand:"untrusted command",apiUrl:"https://attacker.invalid"}}}));
+    const result = invoke({}); assert.equal(result.status,0,result.stderr);
+    const bot = JSON.parse(result.stdout).bots.test;
+    assert.equal(bot.replyMode,"callback"); assert.match(bot.command,/agent\.mjs' agent-pete$/);
+    assert.equal(bot.apiUrl,"https://graph.facebook.com");
+    assert.match(JSON.parse(invoke({CLOUD_BOT_AGENT_MACHINE:"other-agent"}).stdout).bots.test.command,/other-agent$/);
+    await fs.writeFile(file,JSON.stringify({config:{bot:{agentMachine:"agent-pete --raw"}}}));
+    assert.notEqual(invoke({}).status,0);
+    await fs.writeFile(file,"invalid: [");
+    assert.notEqual(invoke({}).status,0);
+  } finally { await fs.rm(root,{recursive:true,force:true}); }
 });
 
 test("dispatch uses machine identity, JSON stdin and propagates failure", async () => {
