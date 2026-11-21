@@ -49,6 +49,12 @@ test("VM configuration selects an agent without enabling arbitrary commands", as
     const bot = JSON.parse(result.stdout).bots.test;
     assert.equal(bot.replyMode,"callback"); assert.match(bot.command,/agent\.mjs' agent-pete$/);
     assert.equal(bot.apiUrl,"https://graph.facebook.com");
+    const status = spawnSync(process.execPath,[new URL("../lib/status-info.mjs",import.meta.url).pathname],{env:{...base,CLOUD_SYNC_TOKEN:"",TURSO_DATABASE_URL:"libsql://fixture.invalid",TURSO_AUTH_TOKEN:"fixture-db-token",WHATSAPP_TOKEN:"fixture-channel-token"},encoding:"utf8"});
+    assert.equal(status.status,0,status.stderr);
+    assert.equal(JSON.parse(status.stdout).agentMachine,"agent-pete");
+    assert.equal(JSON.parse(status.stdout).replyMode,"callback");
+    assert.equal(status.stdout.includes("fixture-db-token"),false);
+    assert.equal(status.stdout.includes("fixture-channel-token"),false);
     assert.match(JSON.parse(invoke({CLOUD_BOT_AGENT_MACHINE:"other-agent"}).stdout).bots.test.command,/other-agent$/);
     await fs.writeFile(file,JSON.stringify({config:{bot:{agentMachine:"agent-pete --raw"}}}));
     assert.notEqual(invoke({}).status,0);
