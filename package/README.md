@@ -70,3 +70,7 @@ For a synchronous command instead, set `CLOUD_BOT_COMMAND` to a command that pri
 Use `aux4 cloud-bot work` on the machine to resume one queued message with the
 same bot configuration. It returns the worker lease/result summary and does not
 create an inbound message.
+
+The bot requires core queue leasing that distinguishes an empty queue from a
+provider failure. Agent conversation history stays enabled and is selected by
+the stable opaque conversation ID.
