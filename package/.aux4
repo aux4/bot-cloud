@@ -88,13 +88,15 @@
                 "name": "token",
                 "text": "Meta system-user access token",
                 "default": "secret://aux4-cloud/whatsapp/token",
-                "hide": true
+                "hide": true,
+                "env": "WHATSAPP_TOKEN"
               },
               {
                 "name": "appSecret",
                 "text": "Meta app secret",
                 "default": "secret://aux4-cloud/whatsapp/appSecret",
-                "hide": true
+                "hide": true,
+                "env": "WHATSAPP_APP_SECRET"
               },
               {
                 "name": "apiUrl",

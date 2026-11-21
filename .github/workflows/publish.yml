@@ -64,6 +64,8 @@ jobs:
           TURSO_CLOUD_TEST_URL: http://127.0.0.1:8080
           TURSO_CLOUD_TEST_TOKEN: ''
           CLOUD_BOT_CONFIG_FILE: /nonexistent/cloud-bot-test-config.yaml
+          AUX4_CLOUD_API_URL: http://127.0.0.1:9
+          AUX4_CLOUD_SCOPE: fixture
           NODE_OPTIONS: --require=${{ github.workspace }}/.github/test-local-network.cjs
 
   publish:

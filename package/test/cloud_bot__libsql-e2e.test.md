@@ -27,8 +27,8 @@ const body = JSON.stringify({object:"whatsapp_business_account", entry:[{changes
 const signature = "sha256=" + crypto.createHmac("sha256", "test-app-secret").update(body).digest("hex");
 fs.writeFileSync("envelope.json", JSON.stringify({method:"POST", headers:{"x-hub-signature-256":signature}, pathParameters:{channel:"whatsapp",bot:"whatsapp-bot"}, queryStringParameters:{},rawBody:body, body}));
 '
-aux4 whatsapp --token test-token --appSecret test-app-secret --verifyToken test-verify-token --phoneNumberId PHONE123 --apiUrl http://127.0.0.1:18872 --db cloud <envelope.json
-aux4 whatsapp --token test-token --appSecret test-app-secret --verifyToken test-verify-token --phoneNumberId PHONE123 --apiUrl http://127.0.0.1:18872 --db cloud <envelope.json
+WHATSAPP_TOKEN=test-token WHATSAPP_APP_SECRET=test-app-secret aux4 whatsapp --verifyToken test-verify-token --phoneNumberId PHONE123 --apiUrl http://127.0.0.1:18872 --db cloud <envelope.json
+WHATSAPP_TOKEN=wrong-token WHATSAPP_APP_SECRET=wrong-secret aux4 whatsapp --token test-token --appSecret test-app-secret --verifyToken test-verify-token --phoneNumberId PHONE123 --apiUrl http://127.0.0.1:18872 --db cloud <envelope.json
 node --input-type=module -e '
 import fs from "node:fs";
 import assert from "node:assert/strict";

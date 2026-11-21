@@ -17,7 +17,9 @@ processes one queue item before returning. Its default brain replies
 
 Configure the `verifyToken` value when deploying and create the aux4-cloud
 scope secret `whatsapp` with `token` and `appSecret` fields. The command uses
-the `secret://aux4-cloud/whatsapp/...` references by default.
+the `secret://aux4-cloud/whatsapp/...` references by default. On a VM, assigned
+`WHATSAPP_TOKEN` and `WHATSAPP_APP_SECRET` fields are used directly, avoiding a
+second secret-provider lookup. Explicit command parameters take precedence.
 
 The platform webhook must pass an envelope containing `method`, `headers`,
 `queryStringParameters`, `rawBody`, and `pathParameters` with `channel` and
