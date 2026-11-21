@@ -64,6 +64,5 @@ aux4 repository list --db cloud
 {"ok":true}
 {"ok":true}
 one reply: you said: hello
-{"leased":false}
-queued message resumed once
+{"leased":false}queued message resumed once
 ```
