@@ -163,6 +163,89 @@
           }
         },
         {
+          "name": "work",
+          "noHooks": true,
+          "execute": [
+            "set:botConfig=!node ${packageDir}/lib/config.mjs values(botId, phoneNumberId, verifyToken, token, appSecret, apiUrl, agentMachine, brainCommand)",
+            "set:botConfig=json:${botConfig}",
+            "set:channels=${botConfig.channels}",
+            "set:bots=${botConfig.bots}",
+            "set:defaults=${botConfig.defaults}",
+            "aux4 bot work --mode pull params(channels, bots, defaults, db, tmpDir, queue)"
+          ],
+          "help": {
+            "text": "Resume one queued message using this bot VM configuration",
+            "variables": [
+              {
+                "name": "botId",
+                "text": "Configured bot identifier",
+                "default": "whatsapp-bot"
+              },
+              {
+                "name": "phoneNumberId",
+                "text": "Meta WhatsApp phone number ID",
+                "default": "1450110568185980"
+              },
+              {
+                "name": "verifyToken",
+                "text": "Meta webhook verification token",
+                "default": ""
+              },
+              {
+                "name": "token",
+                "text": "Meta system-user access token",
+                "default": "secret://aux4-cloud/whatsapp/token",
+                "hide": true,
+                "env": "WHATSAPP_TOKEN"
+              },
+              {
+                "name": "appSecret",
+                "text": "Meta app secret",
+                "default": "secret://aux4-cloud/whatsapp/appSecret",
+                "hide": true,
+                "env": "WHATSAPP_APP_SECRET"
+              },
+              {
+                "name": "apiUrl",
+                "text": "Meta Graph API base URL (override for tests)",
+                "default": "https://graph.facebook.com"
+              },
+              {
+                "name": "db",
+                "text": "Bot state database",
+                "default": "cloud"
+              },
+              {
+                "name": "tmpDir",
+                "text": "Temporary attachment directory",
+                "default": "/tmp/aux4-bot"
+              },
+              {
+                "name": "dedupeTtl",
+                "text": "Webhook dedupe lifetime in seconds",
+                "default": "129600"
+              },
+              {
+                "name": "queue",
+                "text": "Repository-backed queue configuration",
+                "default": "{\"name\":\"whatsapp_bot_inbox\",\"provider\":\"repository\",\"db\":\"cloud\",\"visibility\":\"30\",\"maxAttempts\":\"5\"}"
+              },
+              {
+                "name": "agentMachine",
+                "text": "Generic agent VM (uses authenticated completion callbacks)",
+                "env": "CLOUD_BOT_AGENT_MACHINE",
+                "default": ""
+              },
+              {
+                "name": "brainCommand",
+                "text": "Synchronous command that prints a reply (alternative to agentMachine)",
+                "env": "CLOUD_BOT_COMMAND",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
           "name": "conversations",
           "execute": [
             "aux4 bot conversations --botId whatsapp-bot --db cloud param(limit)"

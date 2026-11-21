@@ -37,6 +37,26 @@ assert.equal(rows.length,1); assert.equal(rows[0].body.text.body,"you said: hell
 assert.equal(rows[0].body.to,"15551230001");
 console.log("one reply: you said: hello");
 '
+WHATSAPP_TOKEN=test-token WHATSAPP_APP_SECRET=test-app-secret aux4 cloud-bot work --apiUrl http://127.0.0.1:18872 --db cloud
+WHATSAPP_TOKEN=test-token WHATSAPP_APP_SECRET=test-app-secret node --input-type=module -e '
+import fs from "node:fs";
+import crypto from "node:crypto";
+import assert from "node:assert/strict";
+import {execFileSync} from "node:child_process";
+const cfg = JSON.parse(execFileSync("node", ["../lib/config.mjs", "whatsapp-bot", "PHONE123", "test-verify-token", "test-token", "test-app-secret", "http://127.0.0.1:18872", "", ""], {encoding:"utf8"}));
+const body = JSON.stringify({object:"whatsapp_business_account",entry:[{changes:[{value:{messages:[{from:"15551230001",id:"wamid.RESUME."+crypto.randomUUID(),type:"text",text:{body:"resume me"}}]}}]}]});
+const signature = "sha256="+crypto.createHmac("sha256","test-app-secret").update(body).digest("hex");
+const envelope = {method:"POST",headers:{"x-hub-signature-256":signature},pathParameters:{channel:"whatsapp",bot:"whatsapp-bot"},rawBody:body};
+const args = ["bot","ingest","--channels",JSON.stringify(cfg.channels),"--bots",JSON.stringify(cfg.bots),"--defaults","{}","--db","cloud","--queue",JSON.stringify({name:"whatsapp_bot_inbox",provider:"repository",db:"cloud",visibility:30,maxAttempts:5})];
+assert.equal(JSON.parse(execFileSync("aux4",args,{input:JSON.stringify(envelope),encoding:"utf8"})).statusCode,200);
+const work = () => JSON.parse(execFileSync("aux4",["cloud-bot","work","--apiUrl","http://127.0.0.1:18872","--db","cloud"],{encoding:"utf8"}));
+assert.deepEqual(work(),{leased:true,result:"acked"});
+assert.deepEqual(work(),{leased:false});
+const replies = fs.readFileSync("graph.ndjson","utf8").trim().split("\n").map(JSON.parse).filter(r=>r.body.type === "text");
+assert.equal(replies.length,2);
+assert.equal(replies[1].body.text.body,"you said: resume me");
+console.log("queued message resumed once");
+'
 aux4 repository list --db cloud
 ```
 
@@ -44,4 +64,6 @@ aux4 repository list --db cloud
 {"ok":true}
 {"ok":true}
 one reply: you said: hello
+{"leased":false}
+queued message resumed once
 ```

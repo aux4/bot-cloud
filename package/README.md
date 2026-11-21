@@ -66,3 +66,7 @@ The bot sends an opaque request ID and conversation ID, then waits while the age
 On the agent VM configure `AGENT_CALLBACK_MACHINE=whatsapp-bot` and `AGENT_CALLBACK_COMMAND=cloud-bot complete`. Grant only `ask` from the bot to the agent, and only `cloud-bot/complete` from the agent to the bot. The platform ingress still acknowledges the provider quickly and invokes the bot asynchronously. No child process is detached.
 
 For a synchronous command instead, set `CLOUD_BOT_COMMAND` to a command that prints its reply. Configure either a command or an agent machine. This POC routes text; cross-VM attachments need an explicit shared artifact mechanism.
+
+Use `aux4 cloud-bot work` on the machine to resume one queued message with the
+same bot configuration. It returns the worker lease/result summary and does not
+create an inbound message.
